@@ -53,10 +53,11 @@ module.exports = (karma) => {
             'test/unit/bootstrap.coffee',
             'test/unit/*.js',
             'test/unit/**/*.js',
-            'test/unit/**/*.coffee', {
-                pattern: 'dist/*.js.map',
-                included: false
-            }
+            'test/unit/**/*.coffee',
+            'bower_components/Leaflet.PolylineDecorator/dist/leaflet.polylineDecorator.js',
+            //do not include those specs for jasmine html runner by karma kama_jasmine_runner.html
+            {pattern:'test/**/**/*.coffee', included: false},
+            {pattern: 'dist/**/*.js.map', included: false}
         ],
 
         // list of files to exclude
