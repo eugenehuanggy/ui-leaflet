@@ -1,5 +1,5 @@
 /*!
-*  ui-leaflet 2.0.0 2016-10-21
+*  ui-leaflet 2.0.0 2017-08-15
 *  ui-leaflet - An AngularJS directive to easily interact with Leaflet maps
 *  git: https://github.com/angular-ui/ui-leaflet
 */
@@ -134,7 +134,7 @@ angular.module('ui-leaflet', ['nemLogging']).directive('leaflet', function ($q, 
             });
 
             scope.$on('$destroy', function () {
-                leafletMapDefaults.reset();
+                leafletMapDefaults.reset(attrs.id);
                 map.remove();
                 leafletData.unresolveMap(attrs.id);
             });
@@ -1867,8 +1867,11 @@ angular.module('ui-leaflet').factory('leafletMapDefaults', function ($q, leaflet
 
     // Get the _defaults dictionary, and override the properties defined by the user
     return {
-        reset: function reset() {
-            defaults = {};
+        reset: function reset(scopeId) {
+            if (!isDefined(scopeId)) {
+                scopeId = 'main';
+            }
+            delete defaults[scopeId];
         },
         getDefaults: function getDefaults(scopeId) {
             var mapId = obtainEffectiveMapId(defaults, scopeId);
@@ -4802,7 +4805,12 @@ angular.module('ui-leaflet').factory('leafletEventsHelpersFactory', function ($r
                 // Event propadation logic
                 if (isDefined(leafletScope.eventBroadcast[this.lObjectType].logic)) {
                     // We take care of possible propagation logic
-                    if (leafletScope.eventBroadcast[_this.lObjectType].logic !== "emit" && leafletScope.eventBroadcast[_this.lObjectType].logic !== "broadcast") $log.warn(errorHeader + "Available event propagation logic are: 'emit' or 'broadcast'.");
+                    var configuredLogic = leafletScope.eventBroadcast[_this.lObjectType].logic;
+                    if (configuredLogic !== "emit" && configuredLogic !== "broadcast") {
+                        $log.warn(errorHeader + "Available event propagation logic are: 'emit' or 'broadcast'.");
+                    } else {
+                        logic = configuredLogic;
+                    }
                 }
                 // Enable / Disable
                 var eventsEnable = false,
