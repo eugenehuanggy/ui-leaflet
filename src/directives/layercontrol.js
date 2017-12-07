@@ -212,7 +212,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                     });
                 });
 
-                leafletScope.$watch('layers.overlays', function(newOverlayLayers) {
+                leafletScope.$watchCollection('layers.overlays', function (newOverlayLayers) {
                     var overlaysArray = [];
                     var groupVisibleCount = {};
                     leafletData.getLayers().then(function() {
@@ -259,7 +259,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                         }
                         scope.overlaysArray = overlaysArray;
                     });
-                }, true);
+                });
             });
         }
     };

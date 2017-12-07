@@ -78,8 +78,8 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                 }
 
                 // Watch for the base layers
-                leafletScope.$watch('layers.baselayers', function(newBaseLayers, oldBaseLayers) {
-                    if(angular.equals(newBaseLayers, oldBaseLayers)) {
+                leafletScope.$watchCollection('layers.baselayers', function (newBaseLayers, oldBaseLayers) {
+                    if (angular.equals(newBaseLayers, oldBaseLayers)) {
                         isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
                         return true;
                     }
@@ -133,11 +133,11 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
 
                     // Only show the layers switch selector control if we have more than one baselayer + overlay
                     isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
-                }, true);
+                });
 
                 // Watch for the overlay layers
-                leafletScope.$watch('layers.overlays', function(newOverlayLayers, oldOverlayLayers) {
-                    if(angular.equals(newOverlayLayers, oldOverlayLayers)) {
+                leafletScope.$watchCollection('layers.overlays', function (newOverlayLayers, oldOverlayLayers) {
+                    if (angular.equals(newOverlayLayers, oldOverlayLayers)) {
                         isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
                         return true;
                     }
@@ -215,7 +215,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
 
                     // Only add the layers switch selector control if we have more than one baselayer + overlay
                     isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
-                }, true);
+                });
             });
         }
     };
