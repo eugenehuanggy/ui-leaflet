@@ -83,6 +83,41 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                         isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
                         return true;
                     }
+                    _updateBaseLayer(newBaseLayers);
+                });
+
+                leafletScope.$watch(function () {
+                    var doRefresh = false;
+                    angular.forEach(layers.baselayers, function (l) {
+                        doRefresh = l.doRefresh || doRefresh;
+                    });
+                    return doRefresh;
+                }, function (doRefresh) {
+                    if (!doRefresh) return;
+                    _updateOverlayLayers(layers.baselayers);
+                });
+
+                // Watch for the overlay layers
+                leafletScope.$watchCollection('layers.overlays', function (newOverlayLayers, oldOverlayLayers) {
+                    if (angular.equals(newOverlayLayers, oldOverlayLayers)) {
+                        isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
+                        return true;
+                    }
+                    _updateOverlayLayers(newOverlayLayers);
+                });
+
+                leafletScope.$watch(function () {
+                    var doRefresh = false;
+                    angular.forEach(layers.overlays, function (l) {
+                        doRefresh = l.doRefresh || doRefresh;
+                    });
+                    return doRefresh;
+                }, function (doRefresh) {
+                    if (!doRefresh) return;
+                    _updateOverlayLayers(layers.overlays);
+                });
+
+                function _updateBaseLayer(newBaseLayers) {
                     // Delete layers from the array
                     for (var name in leafletLayers.baselayers) {
                         if (!isDefined(newBaseLayers[name]) || newBaseLayers[name].doRefresh) {
@@ -133,23 +168,16 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
 
                     // Only show the layers switch selector control if we have more than one baselayer + overlay
                     isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
-                });
+                }
 
-                // Watch for the overlay layers
-                leafletScope.$watchCollection('layers.overlays', function (newOverlayLayers, oldOverlayLayers) {
-                    if (angular.equals(newOverlayLayers, oldOverlayLayers)) {
-                        isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
-                        return true;
-                    }
-
+                function _updateOverlayLayers(newOverlayLayers) {
                     // Delete layers from the array
                     for (var name in leafletLayers.overlays) {
                         if (!isDefined(newOverlayLayers[name]) || newOverlayLayers[name].doRefresh) {
                             // Remove from the map if it's on it
                             if (map.hasLayer(leafletLayers.overlays[name])) {
                                 // Safe remove when ArcGIS layers is loading.
-                                var options = isDefined(newOverlayLayers[name])?
-                                    newOverlayLayers[name].layerOptions:null;
+                                var options = isDefined(newOverlayLayers[name]) ? newOverlayLayers[name].layerOptions : null;
                                 safeRemoveLayer(map, leafletLayers.overlays[name], options);
                             }
                             // TODO: Depending on the layer type we will have to delete what's included on it
@@ -215,7 +243,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
 
                     // Only add the layers switch selector control if we have more than one baselayer + overlay
                     isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
-                });
+                }
             });
         }
     };
