@@ -155,7 +155,11 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                             map.removeLayer(leafletLayers.baselayers[name]);
                         }
                         if (!map.hasLayer(leafletLayers.baselayers[name])) {
-                            safeAddLayer(map, leafletLayers.baselayers[name]);
+                            var testBaseLayer = createLayer(layerData);
+                            if (isDefined(testBaseLayer)) {
+                                leafletLayers.baselayers[name] = testBaseLayer;
+                                safeAddLayer(map, leafletLayers.baselayers[name]);
+                            }
                         }
                         layerData.doRefresh = false;
                         return;
@@ -260,7 +264,11 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                             safeRemoveLayer(map, leafletLayers.overlays[name], options);
                         }
                         if (!map.hasLayer(leafletLayers.overlays[name])) {
-                            safeAddLayer(map, leafletLayers.overlays[name]);
+                            var testOverlayLayer = createLayer(layerData);
+                            if (isDefined(testOverlayLayer)) {
+                                leafletLayers.overlays[name] = testOverlayLayer;
+                                safeAddLayer(map, leafletLayers.overlays[name]);
+                            }
                         }
                         layerData.doRefresh = false;
                     }
