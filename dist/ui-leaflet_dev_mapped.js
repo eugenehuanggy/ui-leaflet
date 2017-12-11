@@ -1,5 +1,5 @@
 /*!
-*  ui-leaflet 2.0.0 2017-08-15
+*  ui-leaflet 2.0.0 2017-12-11
 *  ui-leaflet - An AngularJS directive to easily interact with Leaflet maps
 *  git: https://github.com/angular-ui/ui-leaflet
 */
@@ -1572,7 +1572,7 @@ angular.module('ui-leaflet').factory('leafletLayerHelpers', function ($rootScope
         custom: {
             createLayer: function createLayer(params) {
                 if (params.layer instanceof L.Class) {
-                    return angular.copy(params.layer);
+                    return params.layer;
                 } else {
                     $log.error('[AngularJS - Leaflet] A custom layer must be a leaflet Class');
                 }
@@ -3704,7 +3704,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                     });
                 });
 
-                leafletScope.$watch('layers.overlays', function (newOverlayLayers) {
+                leafletScope.$watchCollection('layers.overlays', function (newOverlayLayers) {
                     var overlaysArray = [];
                     var groupVisibleCount = {};
                     leafletData.getLayers().then(function () {
@@ -3751,7 +3751,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                         }
                         scope.overlaysArray = overlaysArray;
                     });
-                }, true);
+                });
             });
         }
     };
@@ -3759,8 +3759,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
 
 'use strict';
 
-angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, leafletData, leafletHelpers, leafletLayerHelpers, leafletControlHelpers) {
-    // var $log = leafletLogger;
+angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, leafletData, leafletHelpers, leafletLayerHelpers, leafletControlHelpers, leafletWatchHelpers) {
     return {
         restrict: "A",
         scope: false,
@@ -3774,6 +3773,8 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
         },
         link: function link(scope, element, attrs, controller) {
             var isDefined = leafletHelpers.isDefined,
+                errorHeader = leafletHelpers.errorHeader,
+                $log = leafletLogger,
                 leafletLayers = {},
                 leafletScope = controller.getLeafletScope(),
                 layers = leafletScope.layers,
@@ -3782,6 +3783,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                 safeRemoveLayer = leafletLayerHelpers.safeRemoveLayer,
                 changeOpacityListener = leafletLayerHelpers.changeOpacityListener,
                 updateLayersControl = leafletControlHelpers.updateLayersControl,
+                maybeWatch = leafletWatchHelpers.maybeWatch,
                 isLayersControlVisible = false;
 
             scope.$on('$destroy', function () {
@@ -3799,8 +3801,9 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
 
                 var mapId = attrs.id;
 
+                _makeActiveBaseLayer();
+
                 // Setup all baselayers definitions
-                var oneVisibleLayer = false;
                 for (var layerName in layers.baselayers) {
                     var newBaseLayer = createLayer(layers.baselayers[layerName]);
                     if (!isDefined(newBaseLayer)) {
@@ -3808,17 +3811,11 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                         continue;
                     }
                     leafletLayers.baselayers[layerName] = newBaseLayer;
-                    // Only add the visible layer to the map, layer control manages the addition to the map
-                    // of layers in its control
-                    if (layers.baselayers[layerName].top === true) {
+                    if (layers.baselayers[layerName].top) {
                         safeAddLayer(map, leafletLayers.baselayers[layerName]);
-                        oneVisibleLayer = true;
                     }
-                }
-
-                // If there is no visible layer add first to the map
-                if (!oneVisibleLayer && Object.keys(leafletLayers.baselayers).length > 0) {
-                    safeAddLayer(map, leafletLayers.baselayers[Object.keys(layers.baselayers)[0]]);
+                    layers.baselayers[layerName].doRefresh = false;
+                    _watchBaseFn(layerName);
                 }
 
                 // Setup the Overlays
@@ -3834,26 +3831,34 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                     if (layers.overlays[layerName].visible === true) {
                         safeAddLayer(map, leafletLayers.overlays[layerName]);
                     }
+                    layers.overlays[layerName].doRefresh = false;
+                    _watchOverlayFn(layerName);
                 }
 
                 // Watch for the base layers
-                leafletScope.$watch('layers.baselayers', function (newBaseLayers, oldBaseLayers) {
+                maybeWatch(leafletScope, 'layers.baselayers', { type: 'watchCollection' }, function (newBaseLayers, oldBaseLayers) {
                     if (angular.equals(newBaseLayers, oldBaseLayers)) {
                         isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
                         return true;
                     }
+                    _createBaseLayer(newBaseLayers);
+                });
+
+                // Watch for the overlay layers
+                maybeWatch(leafletScope, 'layers.overlays', { type: 'watchCollection' }, function (newOverlayLayers, oldOverlayLayers) {
+                    if (angular.equals(newOverlayLayers, oldOverlayLayers)) {
+                        isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
+                        return true;
+                    }
+                    _createOverlayLayers(newOverlayLayers);
+                });
+
+                function _createBaseLayer(newBaseLayers) {
+                    $log.debug(errorHeader, '_createBaseLayer', newBaseLayers);
                     // Delete layers from the array
                     for (var name in leafletLayers.baselayers) {
-                        if (!isDefined(newBaseLayers[name]) || newBaseLayers[name].doRefresh) {
-                            // Remove from the map if it's on it
-                            if (map.hasLayer(leafletLayers.baselayers[name])) {
-                                map.removeLayer(leafletLayers.baselayers[name]);
-                            }
-                            delete leafletLayers.baselayers[name];
-
-                            if (newBaseLayers[name] && newBaseLayers[name].doRefresh) {
-                                newBaseLayers[name].doRefresh = false;
-                            }
+                        if (!isDefined(newBaseLayers[name])) {
+                            _removeBaseLayer(name);
                         }
                     }
                     // add new layers
@@ -3863,63 +3868,98 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                             if (isDefined(testBaseLayer)) {
                                 leafletLayers.baselayers[newName] = testBaseLayer;
                                 // Only add the visible layer to the map
-                                if (newBaseLayers[newName].top === true) {
+                                if (newBaseLayers[newName].visible) {
                                     safeAddLayer(map, leafletLayers.baselayers[newName]);
                                 }
                             }
-                        } else {
-                            if (newBaseLayers[newName].top === true && !map.hasLayer(leafletLayers.baselayers[newName])) {
-                                safeAddLayer(map, leafletLayers.baselayers[newName]);
-                            } else if (newBaseLayers[newName].top === false && map.hasLayer(leafletLayers.baselayers[newName])) {
-                                map.removeLayer(leafletLayers.baselayers[newName]);
-                            }
+                            newBaseLayers[newName].doRefresh = false;
+                            _watchBaseFn(newName);
                         }
                     }
 
+                    _makeActiveBaseLayer();
+
+                    // Only show the layers switch selector control if we have more than one baselayer + overlay
+                    isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
+                }
+
+                function _watchBaseFn(name) {
+                    var baseWatchPath = "layers.baselayers[\"" + name + "\"]";
+                    maybeWatch(leafletScope, baseWatchPath, { type: 'watchCollection' }, function (layerData, old, clearWatch) {
+                        if (layerData === old) {
+                            return;
+                        }
+                        if (!isDefined(layerData)) {
+                            _removeBaseLayer(name);
+                            clearWatch();
+                            return;
+                        }
+                        if (isDefined(old) && old.doRefresh && !layerData.doRefresh) {
+                            return;
+                        }
+                        _updateBaseLayer(name, layerData, old);
+                    });
+                }
+
+                function _removeBaseLayer(name) {
+                    $log.debug('_removeBaseLayer', name);
+                    // Remove from the map if it's on it
+                    if (map.hasLayer(leafletLayers.baselayers[name])) {
+                        map.removeLayer(leafletLayers.baselayers[name]);
+                    }
+                    delete leafletLayers.baselayers[name];
+                }
+
+                function _updateBaseLayer(name, layerData) {
+                    $log.debug(errorHeader, '_updateBaseLayer', layerData);
+
+                    if (layerData.doRefresh) {
+                        if (map.hasLayer(leafletLayers.baselayers[name])) {
+                            map.removeLayer(leafletLayers.baselayers[name]);
+                        }
+                        if (!map.hasLayer(leafletLayers.baselayers[name])) {
+                            var testBaseLayer = createLayer(layerData);
+                            if (isDefined(testBaseLayer)) {
+                                leafletLayers.baselayers[name] = testBaseLayer;
+                                safeAddLayer(map, leafletLayers.baselayers[name]);
+                            }
+                        }
+                        layerData.doRefresh = false;
+                        return;
+                    }
+
+                    if (isDefined(layerData.top)) {
+                        if (layerData.top && !map.hasLayer(leafletLayers.baselayers[name])) {
+                            safeAddLayer(map, leafletLayers.baselayers[name]);
+                        } else if (!layerData.top && map.hasLayer(leafletLayers.baselayers[name])) {
+                            map.removeLayer(leafletLayers.baselayers[name]);
+                        }
+                    }
+                }
+
+                function _makeActiveBaseLayer() {
                     //we have layers, so we need to make, at least, one active
                     var found = false;
                     // search for an active layer
-                    for (var key in leafletLayers.baselayers) {
-                        if (map.hasLayer(leafletLayers.baselayers[key])) {
+                    for (var key in layers.baselayers) {
+                        if (layers.baselayers[key].top) {
                             found = true;
                             break;
                         }
                     }
                     // If there is no active layer make one active
-                    if (!found && Object.keys(leafletLayers.baselayers).length > 0) {
-                        safeAddLayer(map, leafletLayers.baselayers[Object.keys(leafletLayers.baselayers)[0]]);
+                    if (!found && Object.keys(layers.baselayers).length > 0) {
+                        layers.baselayers[Object.keys(layers.baselayers)[0]].top = true;
                     }
+                }
 
-                    // Only show the layers switch selector control if we have more than one baselayer + overlay
-                    isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, newBaseLayers, layers.overlays, leafletLayers);
-                }, true);
-
-                // Watch for the overlay layers
-                leafletScope.$watch('layers.overlays', function (newOverlayLayers, oldOverlayLayers) {
-                    if (angular.equals(newOverlayLayers, oldOverlayLayers)) {
-                        isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
-                        return true;
-                    }
+                function _createOverlayLayers(newOverlayLayers) {
+                    $log.debug(errorHeader, '_createOverlayLayers', newOverlayLayers);
 
                     // Delete layers from the array
                     for (var name in leafletLayers.overlays) {
-                        if (!isDefined(newOverlayLayers[name]) || newOverlayLayers[name].doRefresh) {
-                            // Remove from the map if it's on it
-                            if (map.hasLayer(leafletLayers.overlays[name])) {
-                                // Safe remove when ArcGIS layers is loading.
-                                var options = isDefined(newOverlayLayers[name]) ? newOverlayLayers[name].layerOptions : null;
-                                safeRemoveLayer(map, leafletLayers.overlays[name], options);
-                            }
-                            // TODO: Depending on the layer type we will have to delete what's included on it
-                            var oldLayer = oldOverlayLayers[name];
-                            if (isDefined(oldLayer) && oldLayer.hasOwnProperty("cleanupAction")) {
-                                oldLayer.cleanupAction(leafletLayers.overlays[name]);
-                            }
-                            delete leafletLayers.overlays[name];
-
-                            if (newOverlayLayers[name] && newOverlayLayers[name].doRefresh) {
-                                newOverlayLayers[name].doRefresh = false;
-                            }
+                        if (!isDefined(newOverlayLayers[name])) {
+                            _removeOverlayLayer(name, newOverlayLayers[name]);
                         }
                     }
 
@@ -3932,51 +3972,104 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                                 continue;
                             }
                             leafletLayers.overlays[newName] = testOverlayLayer;
-                            if (newOverlayLayers[newName].visible === true) {
+                            if (newOverlayLayers[newName].visible) {
                                 safeAddLayer(map, leafletLayers.overlays[newName]);
                             }
 
                             if (isDefined(newOverlayLayers[newName].index) && leafletLayers.overlays[newName].setZIndex) {
                                 leafletLayers.overlays[newName].setZIndex(newOverlayLayers[newName].index);
                             }
-                        } else {
-                            // check for the .visible property to hide/show overLayers
-                            if (newOverlayLayers[newName].visible && !map.hasLayer(leafletLayers.overlays[newName])) {
-                                safeAddLayer(map, leafletLayers.overlays[newName]);
-                            } else if (newOverlayLayers[newName].visible === false && map.hasLayer(leafletLayers.overlays[newName])) {
-                                // Safe remove when ArcGIS layers is loading.
-                                safeRemoveLayer(map, leafletLayers.overlays[newName], newOverlayLayers[newName].layerOptions);
-                            }
 
-                            // check for the .layerOptions.opacity property has changed.
-                            var ly = leafletLayers.overlays[newName];
-                            if (map.hasLayer(leafletLayers.overlays[newName])) {
-                                if (newOverlayLayers[newName].layerOptions.opacity !== oldOverlayLayers[newName].layerOptions.opacity) {
-
-                                    if (isDefined(ly.setOpacity)) {
-                                        ly.setOpacity(newOverlayLayers[newName].layerOptions.opacity);
-                                    }
-                                    if (isDefined(ly.getLayers) && isDefined(ly.eachLayer)) {
-                                        ly.eachLayer(changeOpacityListener(newOverlayLayers[newName].layerOptions.opacity));
-                                    }
-                                }
-
-                                if (isDefined(newOverlayLayers[newName].index) && ly.setZIndex && newOverlayLayers[newName].index !== oldOverlayLayers[newName].index) {
-                                    ly.setZIndex(newOverlayLayers[newName].index);
-                                }
-                            }
-                        }
-
-                        //refresh heatmap data if present
-                        if (newOverlayLayers[newName].visible && map._loaded && newOverlayLayers[newName].data && newOverlayLayers[newName].type === "heatmap") {
-                            leafletLayers.overlays[newName].setData(newOverlayLayers[newName].data);
-                            leafletLayers.overlays[newName].update();
+                            newOverlayLayers[newName].doRefresh = false;
+                            _watchOverlayFn(newName);
                         }
                     }
 
                     // Only add the layers switch selector control if we have more than one baselayer + overlay
                     isLayersControlVisible = updateLayersControl(map, mapId, isLayersControlVisible, layers.baselayers, newOverlayLayers, leafletLayers);
-                }, true);
+                }
+
+                function _watchOverlayFn(name) {
+                    var overlayWatchPath = "layers.overlays[\"" + name + "\"]";
+                    maybeWatch(leafletScope, overlayWatchPath, { type: 'watchCollection' }, function (layerData, old, clearWatch) {
+                        if (layerData === old) {
+                            return;
+                        }
+                        if (!isDefined(layerData)) {
+                            _removeOverlayLayer(name, layerData);
+                            clearWatch();
+                            return;
+                        }
+                        if (isDefined(old) && old.doRefresh && !layerData.doRefresh) {
+                            return;
+                        }
+                        _updateOverlayLayer(name, layerData, old);
+                    });
+                }
+
+                function _removeOverlayLayer(name, layerData) {
+                    $log.debug(errorHeader, '_removeOverlayLayer', name, layerData);
+                    // Remove from the map if it's on it
+                    if (map.hasLayer(leafletLayers.overlays[name])) {
+                        // Safe remove when ArcGIS layers is loading.
+                        var options = isDefined(layerData) ? layerData.layerOptions : null;
+                        safeRemoveLayer(map, leafletLayers.overlays[name], options);
+                    }
+                    // TODO: Depending on the layer type we will have to delete what's included on it
+                    delete leafletLayers.overlays[name];
+                }
+
+                function _updateOverlayLayer(name, layerData, old) {
+                    $log.debug(errorHeader, '_updateOverlayLayer', name, layerData, old);
+
+                    // check for the .doRefresh property to remove/add overLayers
+                    if (layerData.doRefresh) {
+                        if (map.hasLayer(leafletLayers.overlays[name])) {
+                            var options = isDefined(layerData) ? layerData.layerOptions : null;
+                            safeRemoveLayer(map, leafletLayers.overlays[name], options);
+                        }
+                        if (!map.hasLayer(leafletLayers.overlays[name])) {
+                            var testOverlayLayer = createLayer(layerData);
+                            if (isDefined(testOverlayLayer)) {
+                                leafletLayers.overlays[name] = testOverlayLayer;
+                                safeAddLayer(map, leafletLayers.overlays[name]);
+                            }
+                        }
+                        layerData.doRefresh = false;
+                    }
+
+                    // check for the .visible property to hide/show overLayers
+                    if (layerData.visible && !map.hasLayer(leafletLayers.overlays[name])) {
+                        safeAddLayer(map, leafletLayers.overlays[name]);
+                    } else if (!layerData.visible && map.hasLayer(leafletLayers.overlays[name])) {
+                        // Safe remove when ArcGIS layers is loading.
+                        safeRemoveLayer(map, leafletLayers.overlays[name], layerData.layerOptions);
+                    }
+
+                    // check for the .layerOptions.opacity property has changed.
+                    var ly = leafletLayers.overlays[name];
+                    if (map.hasLayer(leafletLayers.overlays[name])) {
+                        if (layerData.layerOptions.opacity !== old.layerOptions.opacity) {
+
+                            if (isDefined(ly.setOpacity)) {
+                                ly.setOpacity(layerData.layerOptions.opacity);
+                            }
+                            if (isDefined(ly.getLayers) && isDefined(ly.eachLayer)) {
+                                ly.eachLayer(changeOpacityListener(layerData.layerOptions.opacity));
+                            }
+                        }
+
+                        if (isDefined(layerData.index) && ly.setZIndex && layerData.index !== old.index) {
+                            ly.setZIndex(layerData.index);
+                        }
+                    }
+
+                    //refresh heatmap data if present
+                    if (layerData.visible && map._loaded && layerData.data && layerData.type === "heatmap") {
+                        leafletLayers.overlays[name].setData(layerData.data);
+                        leafletLayers.overlays[name].update();
+                    }
+                }
             });
         }
     };
