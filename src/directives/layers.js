@@ -53,6 +53,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                     if (layers.baselayers[layerName].top) {
                         safeAddLayer(map, leafletLayers.baselayers[layerName]);
                     }
+                    layers.baselayers[layerName].doRefresh = false;
                     _watchBaseFn(layerName);
                 }
 
@@ -69,6 +70,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                     if (layers.overlays[layerName].visible === true) {
                         safeAddLayer(map, leafletLayers.overlays[layerName]);
                     }
+                    layers.overlays[layerName].doRefresh = false;
                     _watchOverlayFn(layerName);
                 }
 
@@ -108,8 +110,9 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                                 if (newBaseLayers[newName].visible) {
                                     safeAddLayer(map, leafletLayers.baselayers[newName]);
                                 }
-                                _watchBaseFn(newName);
                             }
+                            newBaseLayers[newName].doRefresh = false;
+                            _watchBaseFn(newName);
                         }
                     }
 
@@ -217,6 +220,7 @@ angular.module('ui-leaflet').directive('layers', function (leafletLogger, $q, le
                                 leafletLayers.overlays[newName].setZIndex(newOverlayLayers[newName].index);
                             }
 
+                            newOverlayLayers[newName].doRefresh = false;
                             _watchOverlayFn(newName);
                         }
                     }
