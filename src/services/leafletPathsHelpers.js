@@ -122,8 +122,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', function ($rootScope
 
                 return true;
             },
-            createPath: function(options) {
-                return new L.multiPolyline([[[0,0],[1,1]]], options);
+            createPath: function (options) {
+                return new L.Polyline([[[0, 0], [1, 1]]], options);
             },
             setPath: function(path, data) {
                 path.setLatLngs(_convertToLeafletMultiLatLngs(data.latlngs));
@@ -164,8 +164,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', function ($rootScope
 
                 return true;
             },
-            createPath: function(options) {
-                return new L.MultiPolygon([[[0,0],[1,1],[0,1]]], options);
+            createPath: function (options) {
+                return new L.Polygon([[[0, 0], [1, 1], [0, 1]]], options);
             },
             setPath: function(path, data) {
                 path.setLatLngs(_convertToLeafletMultiLatLngs(data.latlngs));
