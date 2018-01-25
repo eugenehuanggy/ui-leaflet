@@ -1,5 +1,5 @@
 /*!
-*  ui-leaflet 3.0.0 2018-01-04
+*  ui-leaflet 3.0.1 2018-01-25
 *  ui-leaflet - An AngularJS directive to easily interact with Leaflet maps
 *  git: https://github.com/angular-ui/ui-leaflet
 */
@@ -2378,6 +2378,7 @@ angular.module('ui-leaflet').service('leafletMarkersHelpers', ["$rootScope", "$t
             if ('label' in oldMarkerData && 'message' in oldMarkerData.label && !angular.equals(markerData.label.message, oldMarkerData.label.message)) {
                 marker.setTooltipContent(markerData.label.message);
             } else if (!angular.isFunction(marker.getLabel) || angular.isFunction(marker.getLabel) && !isDefined(marker.getLabel())) {
+                marker.unbindTooltip();
                 marker.bindTooltip(markerData.label.message, markerData.label.options);
                 _manageOpenLabel(marker, markerData);
             } else {
@@ -2678,8 +2679,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
                 var latlngs = pathData.latlngs;
                 return _isValidPolyline(latlngs);
             },
-            createPath: function createPath(options) {
-                return new L.Polyline([], options);
+            createPath: function createPath(pathData, options) {
+                return new L.Polyline(pathData.latlngs, options);
             },
             setPath: function setPath(path, data) {
                 path.setLatLngs(_convertToLeafletLatLngs(data.latlngs));
@@ -2716,8 +2717,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
                 var latlngs = pathData.latlngs;
                 return _isValidPolyline(latlngs);
             },
-            createPath: function createPath(options) {
-                return new L.Polygon([], options);
+            createPath: function createPath(pathData, options) {
+                return new L.Polygon(pathData.latlngs, options);
             },
             setPath: function setPath(path, data) {
                 $log.debug('Polygon latlngs', _convertToLeafletLatLngs(data.latlngs));
@@ -2768,8 +2769,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
 
                 return true;
             },
-            createPath: function createPath(options) {
-                return new L.Rectangle([[0, 0], [1, 1]], options);
+            createPath: function createPath(pathData, options) {
+                return new L.Rectangle(pathData.latlngs, options);
             },
             setPath: function setPath(path, data) {
                 path.setBounds(new L.LatLngBounds(_convertToLeafletLatLngs(data.latlngs)));
@@ -2781,8 +2782,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
                 var point = pathData.latlngs;
                 return isValidPoint(point) && isNumber(pathData.radius);
             },
-            createPath: function createPath(options) {
-                return new L.Circle([0, 0], 1, options);
+            createPath: function createPath(pathData, options) {
+                return new L.Circle(pathData.latlngs, pathData.radius, options);
             },
             setPath: function setPath(path, data) {
                 path.setLatLng(_convertToLeafletLatLng(data.latlngs));
@@ -2797,8 +2798,8 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
                 var point = pathData.latlngs;
                 return isValidPoint(point) && isNumber(pathData.radius);
             },
-            createPath: function createPath(options) {
-                return new L.CircleMarker([0, 0], options);
+            createPath: function createPath(pathData, options) {
+                return new L.CircleMarker(pathData.latlngs, options);
             },
             setPath: function setPath(path, data) {
                 path.setLatLng(_convertToLeafletLatLng(data.latlngs));
@@ -2842,7 +2843,7 @@ angular.module('ui-leaflet').factory('leafletPathsHelpers', ["$rootScope", "leaf
                 return;
             }
 
-            return pathTypes[path.type].createPath(options);
+            return pathTypes[path.type].createPath(pathData, options);
         }
     };
 }]);
