@@ -1,15 +1,66 @@
+<a name="3.0.2"></a>
+## [3.0.2](https://github.com/angular-ui/ui-leaflet/compare/v2.0.0...v3.0.1) (2018-02-19)
+
+
+### Bug Fixes
+
+* **controls:** removeFrom(map) -> remove() ([31368c5](https://github.com/angular-ui/ui-leaflet/commit/31368c5))
+* **dependency:** correct leaflet.vectormarkers name ([3e051c4](https://github.com/angular-ui/ui-leaflet/commit/3e051c4))
+* **dependency:** fix Leaflet.vector-markers camelCase ([b080fbe](https://github.com/angular-ui/ui-leaflet/commit/b080fbe))
+* **labels:** add tooltip support and fix tests ([b062385](https://github.com/angular-ui/ui-leaflet/commit/b062385))
+* **markers:** fix errors with markers interpolated popups messages ([9e921f8](https://github.com/angular-ui/ui-leaflet/commit/9e921f8))
+* **path,marker:** fix leaflet breaking change (clickable->interactive) ([ce5aa00](https://github.com/angular-ui/ui-leaflet/commit/ce5aa00))
+* **test:** fix leaflet-vector-markers dependencies ([0d0b0d3](https://github.com/angular-ui/ui-leaflet/commit/0d0b0d3))
+* **test:** fix some unit test for markers, geojson and leafletData, fix [#347](https://github.com/angular-ui/ui-leaflet/issues/347) ([50a63c1](https://github.com/angular-ui/ui-leaflet/commit/50a63c1))
+* **test:** fix some unit test for markers, reference [#347](https://github.com/angular-ui/ui-leaflet/issues/347) ([21266dd](https://github.com/angular-ui/ui-leaflet/commit/21266dd))
+* **test:** fix some unit test, reference [#347](https://github.com/angular-ui/ui-leaflet/issues/347) ([a7b51ea](https://github.com/angular-ui/ui-leaflet/commit/a7b51ea))
+
+
+### Features
+
+* **leafletMapDefaults:** add fractional zoom features ([bc1423b](https://github.com/angular-ui/ui-leaflet/commit/bc1423b))
+
+
+
 <a name="2.0.0"></a>
-# [2.0.0](https://github.com/angular-ui/ui-leaflet/compare/v1.0.0...v1.0.2) (2016-10-05)
+# [2.0.0](https://github.com/angular-ui/ui-leaflet/compare/v1.0.2...v2.0.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **Markers:** fix marker icon broken with latest Leaflet version (1.0) ([8bd4509](https://github.com/angular-ui/ui-leaflet/commit/8bd4509)), closes [/github.com/Leaflet/Leaflet/blob/master/src/layer/marker/Icon.Default.js#L36](https://github.com//github.com/Leaflet/Leaflet/blob/master/src/layer/marker/Icon.Default.js/issues/L36)
+
+
+
+<a name="1.0.2"></a>
+## [1.0.2](https://github.com/angular-ui/ui-leaflet/compare/v1.0.1...v1.0.2) (2016-09-21)
+
+
+### Bug Fixes
+
+* **events:** fix [#235](https://github.com/angular-ui/ui-leaflet/issues/235) errors when id is interpolated ([e6b7790](https://github.com/angular-ui/ui-leaflet/commit/e6b7790)), closes [#278](https://github.com/angular-ui/ui-leaflet/issues/278)
+* **markers:** fix dom markers memory leaks ([ceb4169](https://github.com/angular-ui/ui-leaflet/commit/ceb4169))
+
+
+### Features
+
+* **center:** add url-hash-param, URL param for center ([0664847](https://github.com/angular-ui/ui-leaflet/commit/0664847))
+* **layers:** add z-index watch for ordering layers ([5438017](https://github.com/angular-ui/ui-leaflet/commit/5438017))
+
+
+
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/angular-ui/ui-leaflet/compare/v1.0.0...v1.0.1) (2016-06-08)
 
 
 ### Bug Fixes
 
 * **angular 1.5:** codebase works with angular 1.5, and some other random jshint fixes ([e2b78d4](https://github.com/angular-ui/ui-leaflet/commit/e2b78d4))
-* **events:** fix [#235](https://github.com/angular-ui/ui-leaflet/issues/235) errors when id is interpolated ([e6b7790](https://github.com/angular-ui/ui-leaflet/commit/e6b7790)), closes [#278](https://github.com/angular-ui/ui-leaflet/issues/278)
 * **grunt, karma:** huge glob would run out of memory. Removed ([06657c9](https://github.com/angular-ui/ui-leaflet/commit/06657c9))
+* **leafletData unresolveMap:** argument naming renamed scopeId to mapId ([b3bf1b9](https://github.com/angular-ui/ui-leaflet/commit/b3bf1b9))
+* **leafletDirectiveControls extends with attrs.id:** changed leafletHelpers.obtainEffectiveMapId to throw when there are mainy mapIds and one is not provided ([78d64f5](https://github.com/angular-ui/ui-leaflet/commit/78d64f5))
 * **markers:** change _existDomContainer to existDomContainer ([10b7ae3](https://github.com/angular-ui/ui-leaflet/commit/10b7ae3))
 * **markers:** change angular.isDefined to isDefined ([6488ece](https://github.com/angular-ui/ui-leaflet/commit/6488ece))
-* **markers:** fix dom markers memory leaks ([ceb4169](https://github.com/angular-ui/ui-leaflet/commit/ceb4169))
 * **markers:** fix problem with old groups ([bd65183](https://github.com/angular-ui/ui-leaflet/commit/bd65183))
 * **markers:** reduce angular.equals calls ([68ac352](https://github.com/angular-ui/ui-leaflet/commit/68ac352))
 * **markers:** reset only unused markers groups ([2220515](https://github.com/angular-ui/ui-leaflet/commit/2220515))
@@ -17,9 +68,7 @@
 
 ### Features
 
-* **center:** add url-hash-param, URL param for center ([0664847](https://github.com/angular-ui/ui-leaflet/commit/0664847))
 * **EventManager:** Added an event manager which is part of our ui-leaflet modularization refactor. It allows us to dispatch/trigger events for our plugins to listen for. ([d34bfc8](https://github.com/angular-ui/ui-leaflet/commit/d34bfc8))
-* **layers:** add z-index watch for ordering layers ([5438017](https://github.com/angular-ui/ui-leaflet/commit/5438017))
 * **layers:** watch to layerOptions.opacity property ([12003b4](https://github.com/angular-ui/ui-leaflet/commit/12003b4))
 * **markers,paths,geojson,watchOptions:** More flexible watch options and more ([963de33](https://github.com/angular-ui/ui-leaflet/commit/963de33))
 * **travis:** Added travis slack integration ([d1fc37d](https://github.com/angular-ui/ui-leaflet/commit/d1fc37d))
@@ -27,7 +76,7 @@
 
 ### BREAKING CHANGES
 
-* markers,paths,geojson,watchOptions: `markersWatchOptions`, `geojsonWatchOptions`, `watch-markers`,
+* **markers,paths,geojson,watchOptions:** `markersWatchOptions`, `geojsonWatchOptions`, `watch-markers`,
 and `watch-paths` are no longer supported. The format of the watch options has
 also changed.
 
@@ -116,7 +165,7 @@ $scope.watchOptions = {
 ### Features
 
 * **layers:** Add support for Leaflet.TileLayer.IIP ([ec0fe74](https://github.com/angular-ui/ui-leaflet/commit/ec0fe74))
-* **lf-center:** lfCenter or 'lf-center' added which is a dupe of ([06b5a3f](https://github.com/angular-ui/ui-leaflet/commit/06b5a3f))
+* **lf-center:** lfCenter or 'lf-center' added which is a dupe of ([06b5a3f](https://github.com/angular-ui/ui-leaflet/commit/06b5a3f)), closes [#535](https://github.com/angular-ui/ui-leaflet/issues/535)
 
 
 
@@ -128,15 +177,15 @@ $scope.watchOptions = {
 
 * **code:** Deleted uneeded file ([5be6c45](https://github.com/angular-ui/ui-leaflet/commit/5be6c45))
 * **controls:** Solved a problem with loading custom controls, as reported by [@adgoncal](https://github.com/adgoncal) here: ([a1843f2](https://github.com/angular-ui/ui-leaflet/commit/a1843f2))
-* **dependencies:** remove dependency font-awesome ([f735e85](https://github.com/angular-ui/ui-leaflet/commit/f735e85))
-* **dependencies:** utfgrid now specifies main file ([79c6a25](https://github.com/angular-ui/ui-leaflet/commit/79c6a25))
+* **dependencies:** remove dependency font-awesome ([f735e85](https://github.com/angular-ui/ui-leaflet/commit/f735e85)), closes [#418](https://github.com/angular-ui/ui-leaflet/issues/418)
+* **dependencies:** utfgrid now specifies main file ([79c6a25](https://github.com/angular-ui/ui-leaflet/commit/79c6a25)), closes [danzel/Leaflet.utfgrid#36](https://github.com/danzel/Leaflet.utfgrid/issues/36)
 * **paths:** Better log description with a path inside overlay error ([a02c304](https://github.com/angular-ui/ui-leaflet/commit/a02c304))
 
 
 ### Features
 
 * **examples:** Added new example of loading custom controls ([979a733](https://github.com/angular-ui/ui-leaflet/commit/979a733))
-* **examples:** Compiled the examples with the new GeoGJSON Shape Layer added by [@stev](https://github.com/stev)-0 here: ([1f5e86a](https://github.com/angular-ui/ui-leaflet/commit/1f5e86a))
+* **examples:** Compiled the examples with the new GeoGJSON Shape Layer added by [@stev-0](https://github.com/stev-0) here: ([1f5e86a](https://github.com/angular-ui/ui-leaflet/commit/1f5e86a))
 
 
 
@@ -155,7 +204,7 @@ $scope.watchOptions = {
 
 ### Features
 
-* **bounds:** Added the nominatim address way of setting bounds, as requested by [@stefan](https://github.com/stefan)-niedermann here: ([6e16cad](https://github.com/angular-ui/ui-leaflet/commit/6e16cad))
+* **bounds:** Added the nominatim address way of setting bounds, as requested by [@stefan-niedermann](https://github.com/stefan-niedermann) here: ([6e16cad](https://github.com/angular-ui/ui-leaflet/commit/6e16cad))
 * **bounds:** Extracted the nominatim functionality as a service, to be able to use it from center and markers ([11e9e31](https://github.com/angular-ui/ui-leaflet/commit/11e9e31))
 * **controls:** Added new example of the search-plugin ([18597cb](https://github.com/angular-ui/ui-leaflet/commit/18597cb))
 * **controls:** Reworked and cleaned up "controls" code. Now is possible to add/remove controls dinamically, and it's very easy to extend controls with new ones. ([2d008cc](https://github.com/angular-ui/ui-leaflet/commit/2d008cc))
@@ -169,7 +218,7 @@ $scope.watchOptions = {
 
 ### Bug Fixes
 
-* **build:** grunt-graphviz added to devDeps ([b2236ac](https://github.com/angular-ui/ui-leaflet/commit/b2236ac))
+* **build:** grunt-graphviz added to devDeps ([b2236ac](https://github.com/angular-ui/ui-leaflet/commit/b2236ac)), closes [#805](https://github.com/angular-ui/ui-leaflet/issues/805)
 * **center:** cleanup some center code, based on this issue by [@pieterjandesmedt](https://github.com/pieterjandesmedt): ([ea1d52a](https://github.com/angular-ui/ui-leaflet/commit/ea1d52a))
 * **labels:** labels added to existing markers are now bound ([f464f9c](https://github.com/angular-ui/ui-leaflet/commit/f464f9c))
 * **markers updates:** Marker Clean up and storage was incorrect on how ([6fc72b4](https://github.com/angular-ui/ui-leaflet/commit/6fc72b4))
@@ -232,7 +281,7 @@ $scope.watchOptions = {
 
 ### Features
 
-* **layers:** Added the possibility to manually refresh a layer without removing and adding again using the doRefrsh property. ([480bdde](https://github.com/angular-ui/ui-leaflet/commit/480bdde))
+* **layers:** Added the possibility to manually refresh a layer without removing and adding again using the doRefrsh property. ([480bdde](https://github.com/angular-ui/ui-leaflet/commit/480bdde)), closes [/github.com/tombatossals/angular-leaflet-directive/issues/730#issuecomment-95597177](https://github.com//github.com/tombatossals/angular-leaflet-directive/issues/730/issues/issuecomment-95597177)
 
 
 
@@ -259,14 +308,14 @@ $scope.watchOptions = {
 
 * bad caching for _layerControl ([bbeb54e](https://github.com/angular-ui/ui-leaflet/commit/bbeb54e))
 * **marker:** Tests passing again after this new functionality: ([e0c7d2d](https://github.com/angular-ui/ui-leaflet/commit/e0c7d2d))
-* **markers:** Solved a bug related with the default icon position, thanks to [@Jespersm75](https://github.com/Jespersm75) for reporting here: ([9626e19](https://github.com/angular-ui/ui-leaflet/commit/9626e19))
+* **markers:** Solved a bug related with the default icon position, thanks to @Jespersm75 for reporting here: ([9626e19](https://github.com/angular-ui/ui-leaflet/commit/9626e19))
 
 
 ### Features
 
 * **controls:** Added the scale control and an example showing it. Thanks to [@dts](https://github.com/dts) here: ([7f1fbf5](https://github.com/angular-ui/ui-leaflet/commit/7f1fbf5))
 * **events:** Reworked the marker events. We use the "emit" login instead of "broadcast" for markers. ([5c50f7f](https://github.com/angular-ui/ui-leaflet/commit/5c50f7f))
-* **examples:** New bootstrap-ui integration with modal and a map with marker-clustering. Example by [@Getz85](https://github.com/Getz85) here: ([bceff46](https://github.com/angular-ui/ui-leaflet/commit/bceff46))
+* **examples:** New bootstrap-ui integration with modal and a map with marker-clustering. Example by @Getz85 here: ([bceff46](https://github.com/angular-ui/ui-leaflet/commit/bceff46))
 
 
 
@@ -278,7 +327,7 @@ $scope.watchOptions = {
 
 * **geojson:** Shallow watch of the geojson object to accomplish better performance, as stated by [@facultymatt](https://github.com/facultymatt) here: ([c893a1a](https://github.com/angular-ui/ui-leaflet/commit/c893a1a))
 * **markerCompilation:** use specified scope to listen to includeContentLoaded ([2d93794](https://github.com/angular-ui/ui-leaflet/commit/2d93794))
-* **paths:** Solved a bug with paths and layerGroup management. Reported by [@ValentinH](https://github.com/ValentinH) here: ([10ac4e8](https://github.com/angular-ui/ui-leaflet/commit/10ac4e8))
+* **paths:** Solved a bug with paths and layerGroup management. Reported by @ValentinH here: ([10ac4e8](https://github.com/angular-ui/ui-leaflet/commit/10ac4e8))
 
 
 
@@ -419,7 +468,7 @@ $scope.watchOptions = {
 
 * **build:** 'maxBounds' attribute renamed as 'maxbounds'. ([b2f541c](https://github.com/angular-ui/ui-leaflet/commit/b2f541c))
 * **build:** 'maxbounds' updated to work with leaflet 0.7.1 ([fe57501](https://github.com/angular-ui/ui-leaflet/commit/fe57501))
-* **build:** Added a new createBoundsFromArray helper, proposed by [@lukasz](https://github.com/lukasz)-zak here: ([0adacda](https://github.com/angular-ui/ui-leaflet/commit/0adacda))
+* **build:** Added a new createBoundsFromArray helper, proposed by [@lukasz-zak](https://github.com/lukasz-zak) here: ([0adacda](https://github.com/angular-ui/ui-leaflet/commit/0adacda))
 * **build:** Added a new service of bounds helpers: leafletBoundsHelpers ([eac699a](https://github.com/angular-ui/ui-leaflet/commit/eac699a))
 * **build:** Updated grunt-protractor-runner and protractor configuration to version 0.15.0 ([ea836c3](https://github.com/angular-ui/ui-leaflet/commit/ea836c3))
 * **documentation:** Added the 'layers' documentation section. ([bf783e8](https://github.com/angular-ui/ui-leaflet/commit/bf783e8))
@@ -444,7 +493,7 @@ $scope.watchOptions = {
 * **build:** Removed the center undefined log message as noted by [@ngoldman](https://github.com/ngoldman) here: ([a41e4ef](https://github.com/angular-ui/ui-leaflet/commit/a41e4ef))
 * **build:** Solved a problem with the render of the Google Maps Layer, reported by [@pwoloszum](https://github.com/pwoloszum) here: ([73f17c0](https://github.com/angular-ui/ui-leaflet/commit/73f17c0))
 * **grunt:** Added the e2e protractor tests to the Grunt watch cycle. ([95ac183](https://github.com/angular-ui/ui-leaflet/commit/95ac183))
-* **libraries:** Updated Leaflet.markercluster to version 0.4 on bower.json. Thanks to [@Hyzhak](https://github.com/Hyzhak) for reporting here: ([a7adada](https://github.com/angular-ui/ui-leaflet/commit/a7adada))
+* **libraries:** Updated Leaflet.markercluster to version 0.4 on bower.json. Thanks to @Hyzhak for reporting here: ([a7adada](https://github.com/angular-ui/ui-leaflet/commit/a7adada))
 * **test:** Updated e2e tests to pass the jshint validations ([acee2b0](https://github.com/angular-ui/ui-leaflet/commit/acee2b0))
 * **tests:** Some code updates to the e2e tests ([5e47141](https://github.com/angular-ui/ui-leaflet/commit/5e47141))
 
