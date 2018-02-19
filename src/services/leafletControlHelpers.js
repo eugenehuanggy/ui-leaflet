@@ -27,7 +27,7 @@ angular.module('ui-leaflet').factory('leafletControlHelpers', function ($rootSco
         if (isObject(overlays)) {
             Object.keys(overlays).forEach(function(key) {
                 var layer = overlays[key];
-                if (!isDefined(layer.layerParams) || layer.layerParams.showOnSelector !== false) {
+                if (!isDefined(layer.layerOptions) || layer.layerOptions.showOnSelector !== false) {
                     atLeastOneControlItemMustBeShown = true;
                 }
             });
@@ -185,8 +185,8 @@ angular.module('ui-leaflet').factory('leafletControlHelpers', function ($rootSco
                     }
                 }
                 for (i in overlays) {
-                	var hideOverlayOnSelector = isDefined(overlays[i].layerParams) &&
-                            overlays[i].layerParams.showOnSelector === false;
+                    var hideOverlayOnSelector = isDefined(overlays[i].layerOptions) &&
+                        overlays[i].layerOptions.showOnSelector === false;
                     if (!hideOverlayOnSelector && isDefined(leafletLayers.overlays[i])) {
                         _layersControl.addOverlay(leafletLayers.overlays[i], overlays[i].name);
                     }
